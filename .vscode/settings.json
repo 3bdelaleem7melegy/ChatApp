@@ -1,0 +1,5 @@
+{
+  "cmake.sourceDirectory": "D:/chatapp/linux",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "interactive"
+}
