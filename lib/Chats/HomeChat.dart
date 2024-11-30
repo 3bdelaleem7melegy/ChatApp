@@ -198,215 +198,127 @@ class _HomeChatState extends State<HomeChat> {
   }
 
   Widget _buildChatList() {
-    // return StreamBuilder<QuerySnapshot>(
-    //   stream: FirebaseFirestore.instance
-    //       .collection('chats')
-    //       .where('users', arrayContains: widget.currentUserId)
-    //       .orderBy('lastMessageTimestamp', descending: true)
-    //       .snapshots(),
-    //   builder: (context, snapshot) {
-    //     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-    //       return Center(child: Text('Not have any user'));
-    //     }
-
-    //     final chats = snapshot.data!.docs;
-
-    //     return ListView.builder(
-    //       itemCount: chats.length,
-    //       itemBuilder: (context, index) {
-    //         var chat = chats[index];
-    //         var otherUserId = (chat['users'] as List)
-    //             .firstWhere((userId) => userId != widget.currentUserId);
-    //         var chatId = chat.id;
-
-    //         return StreamBuilder<DocumentSnapshot>(
-    //           stream: FirebaseFirestore.instance
-    //               .collection('Patients')
-    //               .doc(otherUserId)
-    //               .snapshots(),
-    //           builder: (context, userSnapshot) {
-    //             if (!userSnapshot.hasData) {
-    //               return ListTile(title: Text('Loading...'));
-    //             }
-
-    //             var otherUser = userSnapshot.data!;
-    //             return ListTile(
-    //               leading: CircleAvatar(
-    //                 backgroundImage: NetworkImage(otherUser['imageUrl']),
-    //               ),
-    //               title: Text(otherUser['name']),
-    //               subtitle: StreamBuilder<QuerySnapshot>(
-    //                 stream: FirebaseFirestore.instance
-    //                     .collection('chats')
-    //                     .doc(chatId)
-    //                     .collection('messages')
-    //                     .orderBy('timestamp', descending: true)
-    //                     .limit(1)
-    //                     .snapshots(),
-    //                 builder: (context, messageSnapshot) {
-    //                   if (messageSnapshot.hasData &&
-    //                       messageSnapshot.data!.docs.isNotEmpty) {
-    //                     var lastMessage = messageSnapshot.data!.docs.first;
-    //                     if (lastMessage['text'] != null &&
-    //                         lastMessage['text'].isNotEmpty) {
-    //                       return Text(lastMessage['text']); // نص الرسالة
-    //                     } else if (lastMessage['imageUrl'] != null) {
-    //                       return Row(
-    //                         children: [
-    //                           Icon(Icons.image, size: 20, color: Colors.grey),
-    //                           SizedBox(width: 4),
-    //                           Text('Photo'),
-    //                         ],
-    //                       );
-    //                     } else if (lastMessage['videoUrl'] != null) {
-    //                       return Row(
-    //                         children: [
-    //                           Icon(Icons.videocam,
-    //                               size: 20, color: Colors.grey),
-    //                           SizedBox(width: 4),
-    //                           Text('Video'),
-    //                         ],
-    //                       );
-    //                     } else {
-    //                       return Text('');
-    //                     }
-    //                   } else {
-    //                     return Text('');
-    //                   }
-    //                 },
-    //               ),
-    //               onTap: () {
-    //                 Navigator.push(
-    //                   context,
-    //                   MaterialPageRoute(
-    //                     builder: (context) => ChatPage(
-    //                       currentUserId: widget.currentUserId,
-    //                       otherUserId: otherUserId,
-    //                       otherUserName: otherUser['name'],
-    //                       otherUserImageUrl: otherUser['imageUrl'],
-    //                       otherUserPhone: otherUser['phoneNumber'],
-    //                       otherUserBio: otherUser['bio'],
-    //                     ),
-    //                   ),
-    //                 );
-    //               },
-    //             );
-    //           },
-    //         );
-    //       },
-    //     );
-    //   },
-    // );
     return StreamBuilder<QuerySnapshot>(
-  stream: FirebaseFirestore.instance
-      .collection('chats')
-      .where('users', arrayContains: widget.currentUserId)
-      .orderBy('lastMessageTimestamp', descending: true)
-      .snapshots(),
-  builder: (context, snapshot) {
-    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-      return Center(child: Text('Not have any user'));
-    }
+      stream: FirebaseFirestore.instance
+          .collection('chats')
+          .where('users', arrayContains: widget.currentUserId)
+          .orderBy('lastMessageTimestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text('Not have any user'));
+        }
 
-    final chats = snapshot.data!.docs;
+        final chats = snapshot.data!.docs;
 
-    return ListView.builder(
-      itemCount: chats.length,
-      itemBuilder: (context, index) {
-        var chat = chats[index];
-        var otherUserId = (chat['users'] as List)
-            .firstWhere((userId) => userId != widget.currentUserId);
-        var chatId = chat.id;
+        return ListView.builder(
+          itemCount: chats.length,
+          itemBuilder: (context, index) {
+            var chat = chats[index];
+            var otherUserId = (chat['users'] as List)
+                .firstWhere((userId) => userId != widget.currentUserId);
+            var chatId = getChatId(widget.currentUserId, otherUserId);
+            //chat.id
 
-        return StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Patients')
-              .doc(otherUserId)
-              .snapshots(),
-          builder: (context, userSnapshot) {
-            if (!userSnapshot.hasData) {
-              return ListTile(title: Text('Loading...'));
-            }
-
-            var otherUser = userSnapshot.data!;
-
-            // التحقق من حالة الحظر
             return StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('chats')
-                  .doc(chatId)
+                  .collection('Patients')
+                  .doc(otherUserId)
                   .snapshots(),
-              builder: (context, chatSnapshot) {
-                if (!chatSnapshot.hasData) {
+              builder: (context, userSnapshot) {
+                if (!userSnapshot.hasData) {
                   return ListTile(title: Text('Loading...'));
                 }
 
-                bool isBlocked = chatSnapshot.data!.get('isBlocked') ?? false;
-                String? blockedUserId = chatSnapshot.data!.get('blockedUserId');
-                bool isCurrentUserBlocked = isBlocked && blockedUserId == widget.currentUserId;
+                var otherUser = userSnapshot.data!;
 
-                return ListTile(
-                  leading: isCurrentUserBlocked
-                      ? CircleAvatar(
-                          backgroundColor: Colors.grey, // لون رمادي عند الحظر
-                          child: Icon(Icons.person, color: Colors.black), // أيقونة حظر
-                        )
-                      : CircleAvatar(
-                          backgroundImage: NetworkImage(otherUser['imageUrl']),
-                        ),
-                  title: Text(otherUser['name']),
-                  subtitle: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('chats')
-                        .doc(chatId)
-                        .collection('messages')
-                        .orderBy('timestamp', descending: true)
-                        .limit(1)
-                        .snapshots(),
-                    builder: (context, messageSnapshot) {
-                      if (messageSnapshot.hasData &&
-                          messageSnapshot.data!.docs.isNotEmpty) {
-                        var lastMessage = messageSnapshot.data!.docs.first;
-                        if (lastMessage['text'] != null &&
-                            lastMessage['text'].isNotEmpty) {
-                          return Text(lastMessage['text']); // نص الرسالة
-                        } else if (lastMessage['imageUrl'] != null) {
-                          return Row(
-                            children: [
-                              Icon(Icons.image, size: 20, color: Colors.grey),
-                              SizedBox(width: 4),
-                              Text('Photo'),
-                            ],
-                          );
-                        } else if (lastMessage['videoUrl'] != null) {
-                          return Row(
-                            children: [
-                              Icon(Icons.videocam, size: 20, color: Colors.grey),
-                              SizedBox(width: 4),
-                              Text('Video'),
-                            ],
-                          );
-                        } else {
-                          return Text('');
-                        }
-                      } else {
-                        return Text('');
-                      }
-                    },
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatPage(
-                          currentUserId: widget.currentUserId,
-                          otherUserId: otherUserId,
-                          otherUserName: otherUser['name'],
-                          otherUserImageUrl: otherUser['imageUrl'],
-                          otherUserPhone: otherUser['phoneNumber'],
-                          otherUserBio: otherUser['bio'],
-                        ),
+                // التحقق من حالة الحظر
+                return StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('chats')
+                      .doc(chatId)
+                      .snapshots(),
+                  builder: (context, chatSnapshot) {
+                    if (!chatSnapshot.hasData) {
+                      return ListTile(title: Text('Loading...'));
+                    }
+
+                    bool isBlocked =
+                        chatSnapshot.data!.get('isBlocked') ?? false;
+                    String? blockedUserId =
+                        chatSnapshot.data!.get('blockedUserId');
+                    bool isCurrentUserBlocked =
+                        isBlocked && blockedUserId == widget.currentUserId;
+
+                    return ListTile(
+                      leading: isCurrentUserBlocked
+                          ? CircleAvatar(
+                              backgroundColor:
+                                  Colors.grey, // لون رمادي عند الحظر
+                              child: Icon(Icons.person,
+                                  color: Colors.black), // أيقونة حظر
+                            )
+                          : CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(otherUser['imageUrl']),
+                            ),
+                      title: Text(otherUser['name']),
+                      subtitle: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('chats')
+                            .doc(chatId)
+                            .collection('messages')
+                            .orderBy('timestamp', descending: true)
+                            .limit(1)
+                            .snapshots(),
+                        builder: (context, messageSnapshot) {
+                          if (messageSnapshot.hasData &&
+                              messageSnapshot.data!.docs.isNotEmpty) {
+                            var lastMessage = messageSnapshot.data!.docs.first;
+                            if (lastMessage['text'] != null &&
+                                lastMessage['text'].isNotEmpty) {
+                              return Text(lastMessage['text']); // نص الرسالة
+                            } else if (lastMessage['imageUrl'] != null) {
+                              return Row(
+                                children: [
+                                  Icon(Icons.image,
+                                      size: 20, color: Colors.grey),
+                                  SizedBox(width: 4),
+                                  Text('Photo'),
+                                ],
+                              );
+                            } else if (lastMessage['videoUrl'] != null) {
+                              return Row(
+                                children: [
+                                  Icon(Icons.videocam,
+                                      size: 20, color: Colors.grey),
+                                  SizedBox(width: 4),
+                                  Text('Video'),
+                                ],
+                              );
+                            } else {
+                              return Text('');
+                            }
+                          } else {
+                            return Text('');
+                          }
+                        },
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              currentUserId: widget.currentUserId,
+                              otherUserId: otherUserId,
+                              otherUserName: otherUser['name'],
+                              otherUserImageUrl: otherUser['imageUrl'],
+                              otherUserPhone: otherUser['phoneNumber'],
+                              otherUserBio: otherUser['bio'],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -416,9 +328,6 @@ class _HomeChatState extends State<HomeChat> {
         );
       },
     );
-  },
-);
-
   }
 
   String getChatId(String currentUserId, String otherUserId) {

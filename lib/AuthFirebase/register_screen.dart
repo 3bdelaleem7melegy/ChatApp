@@ -96,7 +96,7 @@ class _RegisterState extends State<Register> {
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: TextInputType.name,
               controller: _displayName,
               decoration: InputDecoration(
                 contentPadding:

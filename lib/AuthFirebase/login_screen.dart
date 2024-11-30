@@ -10,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 Patient? patient;
 
 class SignIn extends StatefulWidget {
-  
   const SignIn({super.key});
 
   @override
@@ -19,7 +18,7 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
@@ -97,7 +96,8 @@ class _SignInState extends State<SignIn> {
               keyboardType: TextInputType.emailAddress,
               controller: _emailController,
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                contentPadding:
+                    const EdgeInsets.only(left: 20, top: 10, bottom: 10),
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(90.0)),
                   borderSide: BorderSide.none,
@@ -138,7 +138,8 @@ class _SignInState extends State<SignIn> {
               //keyboardType: TextInputType.visiblePassword,
               controller: _passwordController,
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                contentPadding:
+                    const EdgeInsets.only(left: 20, top: 10, bottom: 10),
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(90.0)),
                   borderSide: BorderSide.none,
@@ -174,11 +175,12 @@ class _SignInState extends State<SignIn> {
                     if (_formKey.currentState!.validate()) {
                       showLoaderDialog(context);
                       _signInWithEmailAndPassword();
-                      
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.black, backgroundColor: Colors.indigo[900], elevation: 2,
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.indigo[900],
+                    elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32.0),
                     ),
@@ -198,11 +200,9 @@ class _SignInState extends State<SignIn> {
               padding: const EdgeInsets.only(top: 15),
               child: TextButton(
                 style: ButtonStyle(
-                    overlayColor:
-                        WidgetStateProperty.all(Colors.transparent)),
+                    overlayColor: WidgetStateProperty.all(Colors.transparent)),
                 onPressed: () {
                   Navigator.pushNamed(context, '/Ressetpassword');
-
                 },
                 child: Text(
                   'Forgot Password?',
@@ -233,7 +233,7 @@ class _SignInState extends State<SignIn> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                   AuthScreen()), // التوجيه إلى الصفحة الجديدة
+                                  AuthScreen()), // التوجيه إلى الصفحة الجديدة
                         );
                       },
                     ),
@@ -307,7 +307,8 @@ class _SignInState extends State<SignIn> {
         children: [
           const CircularProgressIndicator(),
           Container(
-              margin: const EdgeInsets.only(left: 15), child: const Text("Loading...")),
+              margin: const EdgeInsets.only(left: 15),
+              child: const Text("Loading...")),
         ],
       ),
     );
@@ -341,17 +342,18 @@ class _SignInState extends State<SignIn> {
         await user.sendEmailVerification();
       }
       var data = await _firestore.collection("Patients").doc(user.uid).get();
-      final model= Patient.formJson(data.data()??{});
+      final model = Patient.formJson(data.data() ?? {});
       patient = model;
       Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MainPage(currentUserId: user.uid,
-                                    
-                                    // currentUserId: patient!.id,
-                                  ),
-                                ),
-                              );
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainPage(
+            currentUserId: user.uid,
+
+            // currentUserId: patient!.id,
+          ),
+        ),
+      );
       // if (data["type"] == 1) {
       //   Navigator.of(context)
       //       .pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
