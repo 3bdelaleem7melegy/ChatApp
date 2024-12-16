@@ -23,6 +23,7 @@
     }
   },
   "hosting": {
+    "site": "chat-5c87a-8ad8d",
     "source": ".",
     "ignore": [
       "firebase.json",
@@ -30,7 +31,7 @@
       "**/node_modules/**"
     ],
     "frameworksBackend": {
-      "region": "asia-east1"
+      "region": "us-east1"
     }
   }
 }
